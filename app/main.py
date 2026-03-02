@@ -83,7 +83,7 @@ async def query_endpoint(request: QueryRequest):
         )
         
         return {
-            "response": (db_result),
+            "response": json.dumps(db_result),
             "timing": {
                 "prep_time": round(prep_end - prep_start, 4),
                 "inference_time": round(infer_end - infer_start, 4),
