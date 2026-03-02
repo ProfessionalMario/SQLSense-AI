@@ -88,7 +88,7 @@ SQLSense_AI/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/sqlsense-ai.git
+https://github.com/ProfessionalMario/SQLSense-AI.git
 cd sqlsense-ai
 ```
 
@@ -161,11 +161,11 @@ This project can be deployed using:
 _Add screenshot here_
 
 ```
-![alt text](assets\image.png)
+![alt text](SQL_BOT\assets\image.png)
 
-![alt text](assets\image-1.png)
+![alt text](SQL_BOT\assets\image-1.png)
 
-![alt text](image.png)
+![alt text](SQL_BOT\assets\image.png)
 ```
 
 ---
