@@ -1,36 +1,72 @@
-# # model_brain.py
-# import ollama
+# from utils.logger import setup_logger
+# from utils.error import ModelTimeoutError
+from app.utils.error import ModelTimeoutError
+from app.utils.logger import setup_logger
 
-
-# def query_model(prompt: str) -> str:
-#     """Send prompt to Ollama model and return the response."""
-#     response = ollama.chat(
-#         model="tinyllama:latest",  # replace with your downloaded model
-#         messages=[{"role": "user", "content": prompt}]
-#     )
-#     print(response["message"])
-#     return response['message']['content']
-
-
+logger = setup_logger("llm_engine")
 import ollama
 
 def query_model(prompt: str):
-    system_prompt = """
-    You are a SQL generator.
+    logger.info("Sending prompt to model")
 
-    Return ONLY valid SQL.
-    Do not explain.
-    Do not add extra text.
-    Do not wrap in quotes.
-    Return only the query.
-    Never reply with text message unless asked to.
-    """
-    user_prompt = prompt
-    print("Query has been passed to the model.")
-    # Pseudocode depending on your LLM library
-    response = ollama.chat(
-        model="phi3:mini",  # replace with your downloaded model
-        messages=[{"role": "user", "content": prompt}]
-    )
-    print("Now the model has replied")
-    return response['message']['content']
+    try:
+        response = ollama.chat(
+        model="Database_Bot",  # replace with your downloaded model
+        messages=[{"role": "user", "content": prompt}])
+
+        logger.info("Model response received")
+        return response['message']['content']
+
+    except TimeoutError:
+        logger.error("Model inference timeout")
+        raise ModelTimeoutError("Model took too long to respond")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # import ollama
+
+# # def query_model(prompt: str):
+# #     # system_prompt = """
+# #     # You are a SQL generator.
+
+# #     # Return ONLY valid SQL.
+# #     # Do not explain.
+# #     # Do not add extra text.
+# #     # Do not wrap in quotes.
+# #     # Return only the query.
+# #     # Never reply with text message unless asked to.
+# #     # """
+# #     user_prompt = prompt
+# #     print("Query has been passed to the model.")
+# #     # Pseudocode depending on your LLM library
+# #     response = ollama.chat(
+# #         model="Phi3_Database_Bot",  # replace with your downloaded model
+# #         messages=[{"role": "user", "content": prompt}]
+# #     )
+# #     print("Now the model has replied")
+# #     return response['message']['content']
+
+
+
+
+
+
