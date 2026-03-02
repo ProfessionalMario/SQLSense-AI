@@ -18,20 +18,19 @@ from fastapi.templating import Jinja2Templates
 logger = setup_logger("main")
 app= FastAPI()
 
-
 # Jinja2 templates setup
 templates = Jinja2Templates(directory="templates")  # make sure home.html is here
 
-# Pydantic models
 class QueryRequest(BaseModel):
     prompt: str
 
 class QueryResponse(BaseModel):
     response: str
 
+
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request})
+    return templates.TemplateResponse("home3.html", {"request": request})
 
 @app.post("/query", response_model=QueryResponse)
 async def query_endpoint(request: QueryRequest):
@@ -67,13 +66,6 @@ async def query_endpoint(request: QueryRequest):
 
         # ---- Execute query ----
         exec_start = time.perf_counter()
-        
-        # ACTION_MAP = {
-        # "read": 1,
-        # "write": 2
-        # }
-        
-        print(f"DEBUG: Sending to execute_query - query='{model_query}', action_code={repr(action)}, type={type(action  )}")
 
         db_result = execute_query(
             model_query,
@@ -89,9 +81,9 @@ async def query_endpoint(request: QueryRequest):
             f"Exec: {exec_end - exec_start:.4f}s | "
             f"Total: {total_end - total_start:.4f}s"
         )
-
+        
         return {
-            "response": str(db_result),
+            "response": (db_result),
             "timing": {
                 "prep_time": round(prep_end - prep_start, 4),
                 "inference_time": round(infer_end - infer_start, 4),

@@ -1,0 +1,385 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SQL Bot Chat</title>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #f1f5f9;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    height: 100%;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2em;
+  }
+
+  .chat-window {
+    flex: 1 1 auto;
+    min-height: 200px;
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    scroll-behavior: smooth;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+
+  .input-area {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 16px 20px;
+    border-radius: 25px;
+    border: 2px solid #334155;
+    font-size: 16px;
+    outline: none;
+    background: rgba(51, 65, 85, 0.8);
+    color: #f1f5f9;
+    transition: all 0.3s ease;
+  }
+
+  input:focus {
+    border-color: #3b82f6;
+    background: rgba(51, 65, 85, 1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  input::placeholder {
+    color: #94a3b8;
+  }
+
+  button {
+    padding: 16px 28px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  }
+
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .message {
+    max-width: 80%;
+    padding: 18px 24px;
+    border-radius: 24px;
+    font-size: 15px;
+    line-height: 1.5;
+    word-break: break-word;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+    border: 1px solid #444; /* temporary border for visibility */
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    border-bottom-right-radius: 8px;
+  }
+
+  .bot {
+    align-self: flex-start;
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: #e2e8f0;
+    border-bottom-left-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .table-container {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    margin-top: 16px;
+  }
+
+  .table-wrapper {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #e2e8f0;
+    font-size: 14px;
+  }
+
+  th {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    font-weight: 600;
+    padding: 16px 12px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border: none;
+  }
+
+  td {
+    padding: 14px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    border-right: 1px solid rgba(255,255,255,0.05);
+  }
+
+  tr:hover td {
+    background: rgba(59,130,246,0.1);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .chat-window::-webkit-scrollbar,
+  .table-wrapper::-webkit-scrollbar { width: 6px; }
+  .chat-window::-webkit-scrollbar-thumb,
+  .table-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(59,130,246,0.5);
+    border-radius: 10px;
+  }
+
+  .loading {
+    font-style: italic;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .loading::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(59,130,246,0.3);
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error {
+    color: #f87171 !important;
+    background: rgba(248,113,113,0.15) !important;
+    border: 1px solid rgba(248,113,113,0.3) !important;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>💾 Ask SQL Bot</h2>
+  <div id="chatWindow" class="chat-window" aria-live="polite"></div>
+  <div class="input-area">
+    <input id="queryInput" type="text" placeholder="Ask your database anything..." autocomplete="off" />
+    <button id="runBtn">Run</button>
+  </div>
+</div>
+
+
+
+<script>
+  // ---------------------------
+  // Table Renderer
+  // ---------------------------
+  function renderTable(tableData) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "message bot";
+
+    const tableContainer = document.createElement("div");
+    tableContainer.className = "table-container";
+
+    const tableWrapper = document.createElement("div");
+    tableWrapper.className = "table-wrapper";
+
+    const table = document.createElement("table");
+
+    let headers = [];
+
+    if (tableData.length > 0) {
+      if (typeof tableData[0] === "object" && !Array.isArray(tableData[0])) {
+        headers = Object.keys(tableData[0]);
+      } else if (Array.isArray(tableData[0])) {
+        headers = tableData[0].map((_, i) => `Column ${i + 1}`);
+        tableData = tableData.map(row => {
+          const obj = {};
+          row.forEach((val, i) => {
+            obj[`Column ${i + 1}`] = val;
+          });
+          return obj;
+        });
+      }
+    }
+
+    const headerRow = document.createElement("tr");
+    headers.forEach(h => {
+      const th = document.createElement("th");
+      th.textContent = h;
+      headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
+
+    tableData.forEach(row => {
+      const tr = document.createElement("tr");
+      headers.forEach(h => {
+        const td = document.createElement("td");
+        td.textContent = row[h] ?? "";
+        tr.appendChild(td);
+      });
+      table.appendChild(tr);
+    });
+
+    tableWrapper.appendChild(table);
+    tableContainer.appendChild(tableWrapper);
+    msgDiv.appendChild(tableContainer);
+
+    return msgDiv;
+  }
+
+  // ---------------------------
+  // Chat Elements
+  // ---------------------------
+  const chatWindow = document.getElementById("chatWindow");
+  const input = document.getElementById("queryInput");
+  const button = document.getElementById("runBtn");
+
+  function addUserMessage(text) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "message user";
+    msgDiv.textContent = text;
+    chatWindow.appendChild(msgDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function addBotMessage(text) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "message bot";
+    msgDiv.textContent = text;
+    chatWindow.appendChild(msgDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  function showLoading() {
+    const loadingDiv = document.createElement("div");
+    loadingDiv.className = "message bot loading";
+    loadingDiv.textContent = "Running your query...";
+    chatWindow.appendChild(loadingDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    return loadingDiv;
+  }
+
+  // ---------------------------
+  // Send Query
+  // ---------------------------
+  async function sendQuery() {
+    const query = input.value.trim();
+    if (!query) return;
+
+    addUserMessage(query);
+    input.value = "";
+    button.disabled = true;
+    const loadingEl = showLoading();
+
+    try {
+      const res = await fetch("/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: query })
+      });
+
+      const data = await res.json();
+      if (loadingEl) loadingEl.remove();
+
+      if (res.ok && data.response) {
+        let result = data.response;
+
+        // 🔥 FIX: Parse JSON string if needed
+        if (typeof result === "string") {
+          try {
+            result = JSON.parse(result);
+          } catch (e) {
+            // Not JSON, keep as plain string
+          }
+        }
+
+        if (Array.isArray(result) && result.length > 0) {
+          const tableEl = renderTable(result);
+          chatWindow.appendChild(tableEl);
+          chatWindow.scrollTop = chatWindow.scrollHeight;
+        } else if (typeof result === "string" && result.trim()) {
+          addBotMessage(result);
+        } else {
+          addBotMessage("No results found.");
+        }
+      } else {
+        addBotMessage(data.detail || "Something went wrong.");
+      }
+    } catch (e) {
+      if (loadingEl) loadingEl.remove();
+      addBotMessage("Connection error. Please try again.");
+    } finally {
+      button.disabled = false;
+      input.focus();
+    }
+  }
+
+  button.addEventListener("click", sendQuery);
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") sendQuery();
+  });
+
+  input.focus();
+</script>
+
+
+</body>
+</html>  

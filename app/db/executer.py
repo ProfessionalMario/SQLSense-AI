@@ -18,8 +18,15 @@ def execute_query(query: str, action: str):
         if action == "read":
             cursor.execute(query)
             rows = cursor.fetchall()
+
+            # Get column names
+            columns = [col[0] for col in cursor.description]
+
+            # Convert rows to list of dictionaries
+            result = [dict(zip(columns, row)) for row in rows]
+
             conn.close()
-            return rows
+            return result
 
         elif action == "write":
             cursor.execute(query)
