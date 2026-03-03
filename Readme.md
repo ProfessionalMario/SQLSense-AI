@@ -3,7 +3,7 @@
 
 SQLSense AI is an end-to-end AI system that converts natural language prompts into executable SQL queries using a locally deployed LLM (Gemma 3 4B).
 
-The system includes secure query validation, read/write classification, PostgreSQL integration, caching, schema-aware prompting, structured JSON formatting, and a lightweight frontend interface.
+The system includes secure query validation, read/write classification, structured JSON formatting, and a lightweight frontend interface.
 
 Average inference latency: ~5–10 seconds (local Gemma 3 4B deployment)
 
