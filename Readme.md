@@ -18,9 +18,9 @@ This project demonstrates how a guarded LLM layer can safely enable self-service
 
 This architecture can be extended to:
 
-    -CRM systems
+    -Customer Relationship Management systems
 
-    -ERP systems
+    -Enterprise Resource Planning systems
 
     -BI tools
 
